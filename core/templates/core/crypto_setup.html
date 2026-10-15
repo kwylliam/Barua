@@ -1,0 +1,75 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Protect Your Identity | Barua{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel crypto-setup-panel">
+    <div class="eyebrow">Private identity setup</div>
+    <h1>Set up your letterbox</h1>
+    <p class="lede">
+        Barua will create private letter keys in this browser. Your account
+        password will unlock them automatically after you sign in, so opening an
+        envelope will not require another passphrase.
+    </p>
+
+    <div class="info-card">
+        <h2>One simple daily experience</h2>
+        <p>
+            Your account password signs you into Barua and unlocks your private
+            letterbox. Barua never stores that password as a letter key; your
+            browser derives an encryption key from it locally.
+        </p>
+        <p>
+            Your <strong>recovery phrase</strong> is an offline backup for your
+            letterbox. It is for a forgotten password or an emergency recovery,
+            not for opening ordinary envelopes.
+        </p>
+    </div>
+
+    <div class="warning-card">
+        <strong>Save your recovery phrase.</strong>
+        <p>
+            Barua cannot recover your private key for you. Anyone who has this
+            phrase can open your letterbox, so keep it private and offline.
+        </p>
+    </div>
+
+    <div class="recovery-card">
+        <h2>Your recovery phrase</h2>
+        <p class="meta">
+            Write these 24 words down and keep them somewhere safe. Do not store
+            them in a screenshot or send them to anyone.
+        </p>
+        <output id="recovery-phrase" class="recovery-phrase" aria-live="polite"></output>
+    </div>
+
+    <form
+        id="crypto-setup-form"
+        method="post"
+        action="{% url 'crypto-identity' %}"
+        data-success-url="{% url 'dashboard' %}"
+        class="stack-form"
+    >
+        {% csrf_token %}
+        <div class="field">
+            <label for="recovery-confirmation">Type the recovery phrase to confirm</label>
+            <textarea
+                id="recovery-confirmation"
+                name="recovery_confirmation"
+                rows="4"
+                autocomplete="off"
+                autocapitalize="none"
+                spellcheck="false"
+                required
+            ></textarea>
+        </div>
+
+        <p id="crypto-setup-status" class="form-status" aria-live="polite"></p>
+        <button id="crypto-setup-submit" type="submit">Open my letterbox</button>
+    </form>
+</section>
+
+<script src="{% static 'core/crypto-bundle.js' %}?v=9"></script>
+<script src="{% static 'core/crypto-setup.js' %}?v=8"></script>
+{% endblock %}

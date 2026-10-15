@@ -1,0 +1,63 @@
+@font-face {
+    font-family: "Caveat";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("caveat-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Cedarville Cursive";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("cedarville-cursive-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Dancing Script";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("dancing-script-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Homemade Apple";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("homemade-apple-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Indie Flower";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("indie-flower-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Kalam";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("kalam-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Patrick Hand";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("patrick-hand-latin.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Shadows Into Light";
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url("shadows-into-light-latin.woff2") format("woff2");
+}

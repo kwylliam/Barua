@@ -1,0 +1,45 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Sign Up | Barua{% endblock %}
+
+{% block content %}
+<section class="panel auth-panel">
+    <div class="eyebrow">Development access</div>
+    <h1>Create an account</h1>
+    <p class="lede">
+        This password signs you into Barua and unlocks your private letterbox.
+        You will save a separate recovery phrase for emergencies, but you will
+        not need it during ordinary letter writing.
+    </p>
+
+    <form method="post" class="stack-form">
+        {% csrf_token %}
+        {{ form.non_field_errors }}
+        {% for field in form %}
+            <div class="field">
+            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+            {{ field }}
+            {% if field.name == "password1" %}
+                <ul class="password-requirements" aria-label="Password requirements">
+                    <li id="account-password-length"><span aria-hidden="true">○</span> At least 8 characters</li>
+                    <li id="account-password-not-numeric"><span aria-hidden="true">○</span> Not made up only of numbers</li>
+                    <li id="account-password-match"><span aria-hidden="true">○</span> Matches the confirmation below</li>
+                </ul>
+                <small>Barua will also reject passwords that are too common or too similar to your email address.</small>
+            {% endif %}
+            {% if field.help_text and field.name != "password1" %}
+                <small>{{ field.help_text }}</small>
+            {% endif %}
+                {{ field.errors }}
+            </div>
+        {% endfor %}
+        <button type="submit">Create account</button>
+    </form>
+    <p class="muted-line">
+        Already registered? <a href="{% url 'login' %}">Log in</a>.
+    </p>
+</section>
+
+<script src="{% static 'core/signup.js' %}"></script>
+{% endblock %}

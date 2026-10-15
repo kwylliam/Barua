@@ -1,0 +1,61 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}Barua{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'core/fonts/fonts.css' %}?v=1">
+    <link rel="stylesheet" href="{% static 'core/app.css' %}?v=15">
+</head>
+<body>
+    <div class="page-shell">
+        <header class="site-header">
+            <a class="brand" href="{% url 'home' %}" aria-label="Barua home">
+                <span class="brand-seal" aria-hidden="true">B</span>
+                <span>barua</span>
+            </a>
+            <div class="header-note">A little time for something heartfelt</div>
+            <nav class="nav-actions" aria-label="Main navigation">
+                {% if request.user.is_authenticated %}
+                    <a class="nav-link" href="{% url 'dashboard' %}">Letterbox</a>
+                    <a class="nav-link nav-link-primary" href="{% url 'compose-letter' %}">
+                        <svg class="quill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                            <path d="M14.9 4.2c2.2-2.2 4.8-2.6 5.7-2.6 0 .9-.4 3.6-2.6 5.8L8.7 16.7l-3.4.6.6-3.4L14.9 4.2Z" />
+                            <path d="m12.1 7 4.9 4.9M8.7 16.7 5.3 20" />
+                            <path d="M4.2 19.8h8.6a1.8 1.8 0 0 1 1.8 1.8H2.4a1.8 1.8 0 0 1 1.8-1.8ZM3.8 18.2h9.4" />
+                        </svg>
+                        <span>Write a letter</span>
+                        <span aria-hidden="true">↗</span>
+                    </a>
+                    <form method="post" action="{% url 'logout' %}">
+                        {% csrf_token %}
+                        <button type="submit" class="link-button">Log out</button>
+                    </form>
+                {% else %}
+                    <a class="nav-link" href="{% url 'login' %}">Log in</a>
+                    <a class="nav-link nav-link-primary" href="{% url 'signup' %}">Create account</a>
+                {% endif %}
+            </nav>
+        </header>
+
+        <main class="content">
+            {% if messages %}
+                <ul class="messages">
+                    {% for message in messages %}
+                        <li class="message {{ message.tags }}">{{ message }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+            {% block content %}{% endblock %}
+        </main>
+        <footer class="site-footer">
+            <span class="footer-rule" aria-hidden="true"></span>
+            <span>Made for words worth waiting for.</span>
+            <span class="footer-rule" aria-hidden="true"></span>
+        </footer>
+    </div>
+    <script src="{% static 'core/session-cleanup.js' %}?v=1"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

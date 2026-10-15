@@ -1,0 +1,16 @@
+{
+  "name": "barua-client",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build:crypto": "esbuild frontend/crypto/barua-crypto.js --bundle --format=iife --target=es2019 --global-name=BaruaCrypto --outfile=core/static/core/crypto-bundle.js",
+    "test:crypto": "node --test frontend/crypto/barua-crypto.test.js"
+  },
+  "dependencies": {
+    "@scure/bip39": "2.4.0",
+    "libsodium-wrappers-sumo": "0.8.4"
+  },
+  "devDependencies": {
+    "esbuild": "0.27.0"
+  }
+}

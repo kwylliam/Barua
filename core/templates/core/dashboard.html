@@ -1,0 +1,255 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Letterbox | Barua{% endblock %}
+
+{% block content %}
+<section class="dashboard-hero">
+    <div class="hero-copy">
+        <div class="eyebrow">A place for words worth keeping</div>
+        <h1>Your letterbox</h1>
+        <p class="lede">
+            Some things deserve more than a quick message. Write from the heart,
+            send it on its way, and let the waiting become part of the story.
+        </p>
+        <div class="hero-actions">
+            <a class="button button-primary" href="{% url 'compose-letter' %}">
+                <svg class="quill-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                    <path d="M14.9 4.2c2.2-2.2 4.8-2.6 5.7-2.6 0 .9-.4 3.6-2.6 5.8L8.7 16.7l-3.4.6.6-3.4L14.9 4.2Z" />
+                    <path d="m12.1 7 4.9 4.9M8.7 16.7 5.3 20" />
+                    <path d="M4.2 19.8h8.6a1.8 1.8 0 0 1 1.8 1.8H2.4a1.8 1.8 0 0 1 1.8-1.8ZM3.8 18.2h9.4" />
+                </svg>
+                <span>Write a letter</span>
+                <span aria-hidden="true">↗</span>
+            </a>
+            <span class="hero-note"><span class="status-dot" aria-hidden="true"></span> For letters worth writing</span>
+        </div>
+    </div>
+    <div class="hero-postmark" aria-hidden="true">
+        <div class="postmark-ring">
+            <span>BARUA</span>
+            <strong>✦</strong>
+            <span>LETTERBOX</span>
+            <small>EST. 2026</small>
+        </div>
+    </div>
+</section>
+
+{% if not has_crypto_identity %}
+<section class="notice-card setup-notice">
+    <div class="notice-icon" aria-hidden="true">✦</div>
+    <div>
+        <div class="eyebrow">One-time setup</div>
+        <h2>Prepare your letterbox</h2>
+        <p>One small bit of setup, then you can spend your time on the words. Your account password will open your letterbox automatically after sign-in.</p>
+    </div>
+    <a class="text-arrow" href="{% url 'crypto-setup' %}">Set it up <span aria-hidden="true">→</span></a>
+</section>
+{% endif %}
+
+<div class="stat-strip" aria-label="Letterbox summary">
+    <div class="stat-item">
+        <strong>{{ available_letters|length }}</strong>
+        <span>On your desk</span>
+    </div>
+    <div class="stat-item">
+        <strong>{{ scheduled_letters|length }}</strong>
+        <span>On the way</span>
+    </div>
+    <div class="stat-item">
+        <strong>{{ contacts|length }}</strong>
+        <span>People you write to</span>
+    </div>
+    <div class="stat-caption">{{ request.user.email }}</div>
+</div>
+
+<div class="dashboard-grid">
+    <section class="section-card binder-card binder-correspondents correspondents-card">
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow">The people in your story</div>
+                <h2>Correspondents</h2>
+            </div>
+            <span class="section-count">{{ contact_cards|length }}</span>
+        </div>
+        {% if contact_cards %}
+            <ul class="contact-list">
+                {% for card in contact_cards %}
+                    <li class="contact-row">
+                        <span class="avatar" aria-hidden="true">{{ card.user.email|slice:":1"|upper }}</span>
+                        <div class="contact-details">
+                            <strong>{{ card.user.email }}</strong>
+                            {% if card.keys_current %}
+                                <span class="meta"><span class="mini-dot"></span> Ready for letters</span>
+                            {% else %}
+                                <span class="meta warning-text">Key changed — reconnect needed</span>
+                            {% endif %}
+                            {% if card.fingerprint %}
+                                <details class="advanced-privacy">
+                                    <summary>View fingerprint</summary>
+                                    <div class="meta fingerprint">{{ card.fingerprint }}</div>
+                                </details>
+                            {% endif %}
+                        </div>
+                        <div class="contact-action">
+                            {% if not card.keys_current %}
+                                <span class="status-pill status-warm">Attention</span>
+                            {% elif not card.verified_by_me %}
+                                <span class="status-pill status-ready">Ready</span>
+                                <form method="post" action="{% url 'verify-contact-key' card.contact.pk %}">
+                                    {% csrf_token %}
+                                    <button class="quiet-button" type="submit">Verify</button>
+                                </form>
+                            {% else %}
+                                <span class="status-pill status-ready">Verified</span>
+                            {% endif %}
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-card">
+                <span class="empty-icon" aria-hidden="true">◎</span>
+                <p>No correspondents yet. When you find someone to write to, they’ll live here.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="section-card connection-card">
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow">The front desk</div>
+                <h2>Add a correspondent</h2>
+            </div>
+            <span class="section-symbol" aria-hidden="true">⌁</span>
+        </div>
+        <p class="section-intro">Share a one-time code with someone you trust, or enter theirs to open a correspondence line.</p>
+        <form method="post" action="{% url 'create-connection-code' %}">
+            {% csrf_token %}
+            <button class="button button-secondary" type="submit">Generate a code <span aria-hidden="true">＋</span></button>
+        </form>
+        {% if active_connection_codes %}
+            <div class="active-code">
+                <span class="meta">Your active code</span>
+                {% for connection_code in active_connection_codes %}
+                    <strong>{{ connection_code.code }}</strong>
+                    <span class="meta">Expires {{ connection_code.expires_at|date:"M j, g:i a" }}</span>
+                {% endfor %}
+            </div>
+        {% endif %}
+        <div class="code-divider"><span>or accept an invitation</span></div>
+        <form method="post" action="{% url 'redeem-connection-code' %}" class="redeem-form">
+            {% csrf_token %}
+            {{ redeem_form.non_field_errors }}
+            {% for field in redeem_form %}
+                <label class="sr-only" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                {{ field }}
+                {{ field.errors }}
+            {% endfor %}
+            <button class="quiet-button" type="submit">Accept code <span aria-hidden="true">→</span></button>
+        </form>
+    </section>
+
+    <section class="section-card binder-card binder-arrived letter-section">
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow">The morning post</div>
+                <h2>On your desk</h2>
+            </div>
+            {% if available_letters %}<span class="section-count section-count-accent">{{ available_letters|length }}</span>{% endif %}
+        </div>
+        {% if available_letters %}
+            <ul class="envelope-list">
+                {% for letter in available_letters %}
+                    <li class="envelope-row envelope-arrived">
+                        <span class="envelope-icon" aria-hidden="true"><span></span></span>
+                        <div class="letter-details">
+                            <strong>Letter from {{ letter.sender.email }}</strong>
+                            <span class="meta">Arrived {{ letter.delivery_timestamp|date:"M j, Y, g:i a" }}</span>
+                        </div>
+                        <a class="text-arrow" href="{% url 'read-letter' letter.pk %}">Open <span aria-hidden="true">→</span></a>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-card empty-card-wide">
+                <span class="empty-icon" aria-hidden="true">✉</span>
+                <p>No letters today. The best things are worth a little waiting.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="section-card letter-section transit-section">
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow">Out in the world</div>
+                <h2>On the way</h2>
+            </div>
+            <span class="section-symbol transit-symbol" aria-hidden="true">✦</span>
+        </div>
+        {% if scheduled_letters %}
+            <ul class="envelope-list">
+                {% for letter in scheduled_letters %}
+                    <li class="envelope-row envelope-transit">
+                        <span class="transit-icon" aria-hidden="true">✦</span>
+                        <div class="letter-details">
+                            <strong>Letter to {{ letter.recipient.email }}</strong>
+                            <span class="meta">Expected around {{ letter.delivery_timestamp|date:"M j, g:i a" }}</span>
+                            <span class="transit-line"><span></span></span>
+                        </div>
+                        <span class="status-pill status-transit">In transit</span>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <div class="empty-card empty-card-wide">
+                <span class="empty-icon" aria-hidden="true">↝</span>
+                <p>Nothing is traveling just now. Your next letter will appear here once it sets off.</p>
+            </div>
+        {% endif %}
+    </section>
+
+    <section class="section-card binder-card binder-posted sent-section">
+        <div class="section-heading">
+            <div>
+                <div class="eyebrow">Your stack of letters</div>
+                <h2>Letters sent</h2>
+            </div>
+        </div>
+        {% if sent_letters %}
+            <ul class="sent-list">
+                {% for letter in sent_letters %}
+                    <li>
+                        <span class="sent-mark" aria-hidden="true">{% if letter.downloaded %}✓{% else %}·{% endif %}</span>
+                        <div class="letter-details">
+                            <strong>To {{ letter.recipient.email }}</strong>
+                            <span class="meta">{{ letter.delivery_timestamp|date:"M j, Y, g:i a" }}</span>
+                        </div>
+                        {% if letter.downloaded %}
+                            <span class="status-pill status-ready">Opened</span>
+                        {% else %}
+                            <span class="meta">Still making its way</span>
+                        {% endif %}
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-state">You have not sent anything yet.</p>
+        {% endif %}
+    </section>
+</div>
+
+{% if has_crypto_identity %}
+<section class="privacy-bar">
+    <span class="privacy-lock" aria-hidden="true">⌁</span>
+    <span><strong>Your letters are sealed in your browser.</strong> Barua only carries the envelope.</span>
+    <button id="forget-device-button" class="privacy-action" type="button" data-identity-url="{% url 'crypto-identity' %}">Forget this browser</button>
+    <span id="forget-device-status" class="form-status" aria-live="polite"></span>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+<script src="{% static 'core/crypto-bundle.js' %}?v=9"></script>
+<script src="{% static 'core/device-settings.js' %}?v=2"></script>
+{% endblock %}

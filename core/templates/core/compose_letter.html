@@ -1,0 +1,120 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Write a Letter | Barua{% endblock %}
+
+{% block content %}
+<section class="writing-page" data-recipient-key-template="{% url 'recipient-key' 0 %}">
+    <a class="back-link" href="{% url 'dashboard' %}"><span aria-hidden="true">←</span> Back to the letterbox</a>
+    <div class="writing-header">
+        <div>
+            <div class="eyebrow">The writing desk</div>
+            <h1>Write a letter</h1>
+            <p class="lede">Take your time. A good letter has room to wander. Your browser will seal it before the pigeon leaves.</p>
+        </div>
+    </div>
+
+    {% if sendable_contacts %}
+        <div class="writing-layout">
+            <div class="writing-column">
+                <form
+                    id="encrypted-compose-form"
+                    method="post"
+                    action="{% url 'compose-letter' %}"
+                    data-identity-url="{% url 'crypto-identity' %}"
+                    data-success-url="{% url 'dashboard' %}"
+                    data-min-words="100"
+                    class="writing-form"
+                >
+            {% csrf_token %}
+            <div class="recipient-line field">
+                <label for="recipient">To</label>
+                <select id="recipient" name="recipient" required>
+                    <option value="">Choose a correspondent</option>
+                    {% for item in sendable_contacts %}
+                        <option value="{{ item.user.pk }}">{{ item.user.email }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="paper-field field">
+                <label class="sr-only" for="letter-editor">Letter</label>
+                <div class="editor-toolbar" role="toolbar" aria-label="Letter formatting">
+                    <label class="font-picker">
+                        <span class="sr-only">Handwriting style</span>
+                        <select id="letter-font" aria-label="Handwriting style">
+                            <option value="caveat">Caveat</option>
+                            <option value="dancing-script">Dancing Script</option>
+                            <option value="homemade-apple">Homemade Apple</option>
+                            <option value="cedarville-cursive">Cedarville Cursive</option>
+                            <option value="kalam">Kalam</option>
+                            <option value="patrick-hand">Patrick Hand</option>
+                            <option value="indie-flower">Indie Flower</option>
+                            <option value="shadows-into-light">Shadows Into Light</option>
+                        </select>
+                    </label>
+                    <span class="toolbar-divider" aria-hidden="true"></span>
+                    <button class="format-button" type="button" data-command="bold" aria-label="Bold"><strong>B</strong></button>
+                    <button class="format-button" type="button" data-command="italic" aria-label="Italic"><em>I</em></button>
+                    <button class="format-button" type="button" data-command="underline" aria-label="Underline"><u>U</u></button>
+                </div>
+                <div
+                    id="letter-editor"
+                    class="letter-editor"
+                    contenteditable="true"
+                    role="textbox"
+                    aria-multiline="true"
+                    aria-label="Letter"
+                    data-font-key="caveat"
+                    data-placeholder="Dear …"
+                ></div>
+                <textarea id="letter-text" name="letter_text" hidden aria-hidden="true"></textarea>
+                <div class="paper-footer">
+                    <span class="letter-length-note">
+                        <span>At least 100 words to send</span>
+                        <span class="letter-word-count" id="letter-word-count">0 words</span>
+                    </span>
+                    <span class="letter-draft-status" id="letter-draft-status">Drafts stay on this device</span>
+                    <button class="quiet-button letter-discard-draft" id="letter-discard-draft" type="button" hidden>Discard draft</button>
+                    <span aria-hidden="true">✦</span>
+                </div>
+            </div>
+
+            <div class="writing-actions">
+                <p id="encrypted-compose-status" class="form-status" aria-live="polite"></p>
+                <div class="writing-action-buttons">
+                    <button id="save-draft-button" class="button button-secondary" type="button">Save draft</button>
+                    <button id="encrypted-compose-submit" class="button button-primary" type="submit">Seal and post <span aria-hidden="true">↗</span></button>
+                </div>
+            </div>
+                </form>
+            </div>
+
+            <aside class="section-card binder-card binder-drafts draft-binder" aria-labelledby="draft-binder-title">
+                <div class="section-heading">
+                    <div>
+                        <div class="eyebrow">Kept for later</div>
+                        <h2 id="draft-binder-title">Drafts</h2>
+                    </div>
+                    <span class="section-count" id="draft-count">0</span>
+                </div>
+                <ul class="draft-list" id="local-drafts-list" aria-live="polite">
+                    <li class="draft-empty">Looking through your drafts…</li>
+                </ul>
+                <button id="new-draft-button" class="button button-secondary draft-new-button" type="button">New draft <span aria-hidden="true">＋</span></button>
+                <p class="draft-storage-note">Drafts stay encrypted on this device.</p>
+            </aside>
+        </div>
+    {% else %}
+        <div class="empty-card empty-card-large">
+            <span class="empty-icon" aria-hidden="true">◎</span>
+            <h2>Your desk needs a correspondent</h2>
+            <p>Finish connecting with someone from the letterbox before you write your first letter.</p>
+            <a class="button button-secondary" href="{% url 'dashboard' %}">Go to the letterbox <span aria-hidden="true">→</span></a>
+        </div>
+    {% endif %}
+</section>
+
+<script src="{% static 'core/crypto-bundle.js' %}?v=11"></script>
+<script src="{% static 'core/encrypted-compose.js' %}?v=15"></script>
+{% endblock %}

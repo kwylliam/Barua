@@ -1,0 +1,42 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}Letter from {{ letter.sender.email }} | Barua{% endblock %}
+
+{% block content %}
+<section
+    class="reading-page"
+    data-envelope-url="{% url 'letter-envelope' letter.pk %}"
+    data-opened-url="{% url 'letter-opened' letter.pk %}"
+    data-identity-url="{% url 'crypto-identity' %}"
+>
+    <a class="back-link" href="{% url 'dashboard' %}"><span aria-hidden="true">←</span> Back to the letterbox</a>
+    <div class="envelope-stage">
+        <div class="envelope-illustration" aria-hidden="true">
+            <div class="envelope-flap"></div>
+            <div class="envelope-seal">B</div>
+        </div>
+        <div class="envelope-label">
+            <div class="eyebrow">An envelope has arrived</div>
+            <h1>Letter from {{ letter.sender.email }}</h1>
+            <p class="meta">Delivered {{ letter.delivery_timestamp|date:"M j, Y, g:i a" }}</p>
+        </div>
+    </div>
+
+    <div class="reading-actions">
+        <form id="letter-reader-form" class="stack-form">
+            {% csrf_token %}
+            <button id="letter-reader-submit" class="button button-primary" type="submit">Open envelope <span aria-hidden="true">↗</span></button>
+        </form>
+        <p id="letter-reader-status" class="form-status" aria-live="polite">Your letter is still sealed.</p>
+    </div>
+
+    <article id="letter-body" class="letter-body" hidden></article>
+    <p id="letter-reader-error" class="empty-state error-panel" hidden></p>
+    <p id="letter-readable-download" class="download-note" hidden></p>
+    <p class="sealed-download"><a href="{% url 'download-letter' letter.pk %}">Download the sealed envelope</a> · <span>or return to your letterbox</span></p>
+</section>
+
+<script src="{% static 'core/crypto-bundle.js' %}?v=9"></script>
+<script src="{% static 'core/letter-reader.js' %}?v=11"></script>
+{% endblock %}
